@@ -4,6 +4,7 @@
 
 | Skill | Type | Purpose |
 |-------|------|---------|
+| `smart_commit` | workflow | Auto-group changes, atomic commits, spawn doc/test agents |
 | `repo_gardening` | maintenance | Repository hygiene, file organization |
 | `doc_sync` | documentation | Keep docs in sync with code |
 | `refactor_safe` | refactor | Safe internal refactoring |
@@ -12,6 +13,12 @@
 | `vue_perf_tune` | performance | Vue 3 + Vite performance optimization |
 
 ## Skill Details
+
+### smart_commit
+- **Trigger**: Before committing, when multiple files changed
+- **Scope**: All uncommitted changes
+- **Safety**: High (analyzes before acting)
+- **Spawns**: document-writer, test verification agents
 
 ### repo_gardening
 - **Trigger**: Scheduled or manual
