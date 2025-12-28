@@ -1,0 +1,177 @@
+name: Auto Refactor
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target path to refactor"
+        required: true
+        default: "backend/app"
+        type: string
+      dry_run:
+        description: "Dry run (no commits)"
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  pre-check:
+    name: Pre-Refactor Validation
+    runs-on: ubuntu-latest
+    outputs:
+      coverage: ${{ steps.coverage.outputs.value }}
+      can_proceed: ${{ steps.validate.outputs.can_proceed }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        
+      - name: Run tests with coverage
+        id: coverage
+        run: |
+          cd backend
+          uv sync
+          uv run pytest --cov=app --cov-report=json
+          
+          # Extract coverage percentage
+          coverage=$(python3 -c "import json; print(json.load(open('coverage.json'))['totals']['percent_covered'])")
+          echo "value=$coverage" >> $GITHUB_OUTPUT
+          echo "Coverage: $coverage%"
+          
+      - name: Validate prerequisites
+        id: validate
+        run: |
+          coverage=${{ steps.coverage.outputs.value }}
+          
+          # Check minimum coverage threshold (from skill metadata)
+          if (( $(echo "$coverage >= 80" | bc -l) )); then
+            echo "✅ Coverage threshold met: $coverage%"
+            echo "can_proceed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Coverage too low: $coverage% (need 80%)"
+            echo "can_proceed=false" >> $GITHUB_OUTPUT
+          fi
+
+  refactor:
+    name: Execute Refactor
+    runs-on: ubuntu-latest
+    needs: pre-check
+    if: needs.pre-check.outputs.can_proceed == 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        
+      - name: Install dependencies
+        run: cd backend && uv sync
+        
+      - name: Snapshot exports (before)
+        run: |
+          cd backend
+          uv run python << 'EOF' > /tmp/exports_before.txt
+          import ast
+          from pathlib import Path
+          
+          exports = []
+          for py_file in Path("app").rglob("*.py"):
+              tree = ast.parse(py_file.read_text())
+              for node in ast.walk(tree):
+                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                      if not node.name.startswith("_"):
+                          exports.append(f"{py_file}:{node.name}")
+          
+          for e in sorted(exports):
+              print(e)
+          EOF
+          
+      - name: Run auto-refactoring
+        run: |
+          cd backend
+          
+          # Run ruff with auto-fix
+          uv run ruff check . --fix --unsafe-fixes || true
+          
+          # Run ruff format
+          uv run ruff format .
+          
+      - name: Snapshot exports (after)
+        run: |
+          cd backend
+          uv run python << 'EOF' > /tmp/exports_after.txt
+          import ast
+          from pathlib import Path
+          
+          exports = []
+          for py_file in Path("app").rglob("*.py"):
+              tree = ast.parse(py_file.read_text())
+              for node in ast.walk(tree):
+                  if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                      if not node.name.startswith("_"):
+                          exports.append(f"{py_file}:{node.name}")
+          
+          for e in sorted(exports):
+              print(e)
+          EOF
+          
+      - name: Verify exports unchanged
+        run: |
+          if ! diff /tmp/exports_before.txt /tmp/exports_after.txt; then
+            echo "❌ Public API changed during refactor - aborting"
+            exit 1
+          fi
+          echo "✅ Public API preserved"
+          
+      - name: Run tests (post-refactor)
+        run: cd backend && uv run pytest
+        
+      - name: Create PR
+        if: ${{ inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          branch="auto/refactor-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$branch"
+          git add -A
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          git commit -m "refactor(safe): auto-refactoring of ${{ inputs.target }}"
+          git push -u origin "$branch"
+          
+          gh pr create \
+            --title "refactor(safe): Auto-refactoring of ${{ inputs.target }}" \
+            --body "## Auto-Refactor PR
+
+          **Target**: \`${{ inputs.target }}\`
+          **Coverage**: ${{ needs.pre-check.outputs.coverage }}%
+          
+          ### Validation
+          - [x] Pre-refactor tests passing
+          - [x] Coverage threshold met (≥80%)
+          - [x] Public API preserved
+          - [x] Post-refactor tests passing
+          
+          ---
+          *Generated by auto-refactor workflow*"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

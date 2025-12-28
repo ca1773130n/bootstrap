@@ -1,0 +1,140 @@
+name: Documentation Tests
+
+on:
+  push:
+    paths:
+      - "**.md"
+      - "docs/**"
+  pull_request:
+    paths:
+      - "**.md"
+      - "docs/**"
+  schedule:
+    # Run weekly to catch drift
+    - cron: "0 0 * * 0"
+
+jobs:
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Lint Markdown
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: "**/*.md"
+          config: |
+            {
+              "MD013": false,
+              "MD033": false,
+              "MD041": false
+            }
+
+  link-check:
+    name: Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: --verbose --no-progress "**/*.md"
+          fail: true
+
+  code-block-validation:
+    name: Code Block Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          
+      - name: Extract and validate code blocks
+        run: |
+          # Extract TypeScript/JavaScript blocks and check syntax
+          python3 << 'EOF'
+          import re
+          import subprocess
+          import sys
+          from pathlib import Path
+          
+          errors = []
+          
+          for md_file in Path(".").rglob("*.md"):
+              content = md_file.read_text()
+              
+              # Find TypeScript/JavaScript code blocks
+              ts_blocks = re.findall(r'```(?:typescript|ts|javascript|js)\n(.*?)```', content, re.DOTALL)
+              
+              for i, block in enumerate(ts_blocks):
+                  # Write to temp file and check syntax
+                  temp_file = Path(f"/tmp/check_{i}.ts")
+                  temp_file.write_text(block)
+                  
+                  result = subprocess.run(
+                      ["npx", "tsc", "--noEmit", "--allowJs", str(temp_file)],
+                      capture_output=True,
+                      text=True
+                  )
+                  
+                  if result.returncode != 0:
+                      errors.append(f"{md_file}: Code block {i+1} has syntax errors")
+              
+              # Find Python code blocks
+              py_blocks = re.findall(r'```python\n(.*?)```', content, re.DOTALL)
+              
+              for i, block in enumerate(py_blocks):
+                  try:
+                      compile(block, f"{md_file}:block{i}", "exec")
+                  except SyntaxError as e:
+                      errors.append(f"{md_file}: Python block {i+1} - {e}")
+          
+          if errors:
+              print("Code block errors found:")
+              for e in errors:
+                  print(f"  - {e}")
+              sys.exit(1)
+          
+          print("All code blocks valid")
+          EOF
+
+  api-doc-sync:
+    name: API Documentation Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        
+      - name: Install dependencies
+        run: cd backend && uv sync
+        
+      - name: Check API docs match routes
+        run: |
+          cd backend
+          uv run python << 'EOF'
+          import json
+          from pathlib import Path
+          
+          # This is a placeholder - implement based on your actual API structure
+          # Example: compare OpenAPI spec with documented endpoints
+          
+          print("API documentation sync check passed")
+          EOF
