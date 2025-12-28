@@ -99,6 +99,7 @@ See [infra/postgres-vps.md](infra/postgres-vps.md) for VPS PostgreSQL setup.
 
 | Skill | Purpose |
 |-------|---------|
+| `smart_commit` | Auto-group changes, atomic commits, spawn doc/test agents |
 | `repo_gardening` | File organization, dead code removal |
 | `doc_sync` | Keep docs in sync with code |
 | `refactor_safe` | Safe internal refactoring (80% coverage required) |
