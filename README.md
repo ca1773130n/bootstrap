@@ -1,128 +1,69 @@
 # Bootstrap
 
-Agent-first, constitution-driven project template for Vue 3 + FastAPI.
+Minimal Vue 3 + FastAPI starter. Transform into any webapp.
 
 ## Stack
 
 - **Frontend**: Vue 3 + Vite + TypeScript
 - **Backend**: FastAPI + Pydantic
-- **Database**: PostgreSQL (self-hosted on VPS)
-- **Hosting**: Fly.io
-- **CI/CD**: GitHub Actions
+- **Database**: PostgreSQL
+- **CI**: GitHub Actions
 
 ## Quick Start
 
 ```bash
+# Install dependencies
 make install
-make dev
+
+# Option 1: Docker (recommended)
+make up
+
+# Option 2: Local dev
+make dev-frontend  # Terminal 1
+make dev-backend   # Terminal 2
 ```
 
 ## Structure
 
 ```
-├── constitution/       # Agent governance rules
-├── agents/             # Agent role definitions
-├── .claude/
-│   ├── skills/         # Claude Code skill modules
-│   ├── instructions.md
-│   └── skill_index.md
-├── .github/workflows/  # CI/CD automation
-├── frontend/           # Vue 3 + Vite
-├── backend/            # FastAPI
-├── infra/              # Fly.io, PostgreSQL configs
-└── scripts/            # Setup & deployment scripts
+├── frontend/           # Vue 3 + Vite + TypeScript
+├── backend/            # FastAPI + Pydantic
+├── infra/              # Database schema
+├── .github/workflows/  # CI pipeline
+├── extras/             # Optional add-ons (see below)
+├── docker-compose.yml  # Local development
+└── Makefile            # Common commands
 ```
-
-## Deployment
-
-### Option 1: Automated Setup (Recommended)
-
-```bash
-# 1. Copy and edit config
-cp .env.fly.example .env.fly
-nano .env.fly
-
-# 2. Run setup (creates apps, sets secrets, deploys)
-./scripts/fly-setup.sh
-```
-
-### Option 2: Manual Setup
-
-```bash
-# Install CLI
-brew install flyctl
-fly auth login
-
-# Create apps
-fly apps create myapp-api
-fly apps create myapp-web
-
-# Set secrets
-fly secrets set DATABASE_URL="postgresql://..." -a myapp-api
-
-# Deploy
-fly deploy --config infra/fly.backend.toml --app myapp-api
-fly deploy --config infra/fly.frontend.toml --app myapp-web
-```
-
-### Update Secrets Anytime
-
-```bash
-# Edit .env.fly, then:
-./scripts/fly-secrets.sh
-```
-
-### CI/CD Auto-Deploy
-
-1. Get deploy token:
-   ```bash
-   fly tokens create deploy -x 999999h
-   ```
-
-2. Add to GitHub:
-   - Go to repo → Settings → Secrets → Actions
-   - Add `FLY_API_TOKEN`
-
-3. (Optional) Add variables for custom app names:
-   - `FLY_APP_API` (default: myapp-api)
-   - `FLY_APP_WEB` (default: myapp-web)
-
-Every push to `main` auto-deploys. You'll get:
-- Preview URLs in workflow summary
-- Mobile notification via GitHub app
-
-### Database Setup
-
-See [infra/postgres-vps.md](infra/postgres-vps.md) for VPS PostgreSQL setup.
-
-## Claude Code Skills
-
-| Skill | Purpose |
-|-------|---------|
-| `smart_commit` | Auto-group changes, atomic commits, spawn doc/test agents |
-| `repo_gardening` | File organization, dead code removal |
-| `doc_sync` | Keep docs in sync with code |
-| `refactor_safe` | Safe internal refactoring (80% coverage required) |
-| `ci_fix` | Auto-fix CI failures |
-| `api_evolution_safe` | Backward-compatible API changes |
-| `vue_perf_tune` | Vue performance optimization |
-
-## GitHub Actions
-
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `ci.yml` | Push/PR | Tests, lint, type check |
-| `deploy.yml` | Push to main | Deploy to Fly.io + notify |
-| `doc-test.yml` | Docs changed | Validate documentation |
-| `repo-garden.yml` | Daily 2 AM UTC | Repository hygiene |
-| `auto-refactor.yml` | Manual | Safe auto-refactoring |
 
 ## Commands
 
 ```bash
-make install     # Install all dependencies
-make dev         # Start dev servers
-make lint        # Run all linters
-make test        # Run all tests
+make install     # Install dependencies
+make up          # Start with Docker
+make down        # Stop Docker
+make dev         # Dev server instructions
+make lint        # Run linters
+make test        # Run tests
+make build       # Production build
 make all         # Lint + test + build
+```
+
+## Extras (Optional)
+
+The `extras/` folder contains optional add-ons:
+
+| Folder | Purpose |
+|--------|---------|
+| `extras/infra-fly/` | Fly.io deployment configs + VPS PostgreSQL guide |
+| `extras/workflows/` | Additional GitHub Actions (deploy, auto-refactor) |
+| `extras/agents/` | AI agent role definitions |
+| `extras/constitution/` | AI agent governance rules |
+| `extras/claude-skills/` | Claude Code skill modules |
+
+To use any extra, copy files to their expected locations:
+
+```bash
+# Example: Enable Fly.io deployment
+cp extras/infra-fly/fly.*.toml infra/
+cp extras/workflows/deploy.yml .github/workflows/
 ```
