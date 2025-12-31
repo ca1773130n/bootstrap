@@ -19,12 +19,16 @@ fi
 source "$ENV_FILE"
 
 [ -z "$FLY_APP_API" ] && error "FLY_APP_API not set"
+[ -z "$FLY_APP_WEB" ] && error "FLY_APP_WEB not set"
 
 echo "Updating secrets for $FLY_APP_API..."
+
+CORS_ORIGINS="https://${FLY_APP_WEB}.fly.dev,http://localhost:5173"
 
 SECRETS=""
 [ -n "$DATABASE_URL" ] && SECRETS="$SECRETS DATABASE_URL=$DATABASE_URL"
 [ -n "$SECRET_KEY" ] && SECRETS="$SECRETS SECRET_KEY=$SECRET_KEY"
+SECRETS="$SECRETS CORS_ORIGINS=$CORS_ORIGINS"
 
 if [ -n "$SECRETS" ]; then
     fly secrets set $SECRETS --app "$FLY_APP_API"
