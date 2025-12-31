@@ -82,7 +82,7 @@ jobs:
   commit-lint:
     name: Commit Message Lint
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop')
     steps:
       - uses: actions/checkout@v4
         with:
@@ -90,7 +90,12 @@ jobs:
           
       - name: Check commit messages
         run: |
-          git log --format=%s origin/${{ github.base_ref }}..HEAD | while read msg; do
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="origin/${{ github.base_ref }}"
+          else
+            BASE="origin/main"
+          fi
+          git log --format=%s ${BASE}..HEAD | while read msg; do
             if ! echo "$msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|perf|build|revert)(\(.+\))?: .+"; then
               echo "Invalid commit message: $msg"
               echo "Expected format: type(scope): description"
