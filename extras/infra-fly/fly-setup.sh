@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -54,14 +56,14 @@ else
 fi
 
 step "Step 4/6: Set Secrets"
-./scripts/fly-secrets.sh "$ENV_FILE"
+"$SCRIPT_DIR/fly-secrets.sh" "$ENV_FILE"
 
 step "Step 5/6: Deploy"
 echo "Deploying backend..."
-fly deploy --config infra/fly.backend.toml --app "$FLY_APP_API" --remote-only
+fly deploy --config "$SCRIPT_DIR/fly.backend.toml" --app "$FLY_APP_API" --remote-only
 
 echo "Deploying frontend..."
-fly deploy --config infra/fly.frontend.toml --app "$FLY_APP_WEB" --remote-only
+fly deploy --config "$SCRIPT_DIR/fly.frontend.toml" --app "$FLY_APP_WEB" --remote-only
 
 step "Step 6/6: Generate Deploy Token for CI/CD"
 echo ""
