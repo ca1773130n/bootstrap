@@ -59,11 +59,13 @@ step "Step 4/6: Set Secrets"
 "$SCRIPT_DIR/fly-secrets.sh" "$ENV_FILE"
 
 step "Step 5/6: Deploy"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
 echo "Deploying backend..."
-fly deploy --config "$SCRIPT_DIR/fly.backend.toml" --app "$FLY_APP_API" --remote-only
+fly deploy --config "$SCRIPT_DIR/fly.backend.toml" --app "$FLY_APP_API" --dockerfile "$PROJECT_ROOT/backend/Dockerfile" "$PROJECT_ROOT/backend"
 
 echo "Deploying frontend..."
-fly deploy --config "$SCRIPT_DIR/fly.frontend.toml" --app "$FLY_APP_WEB" --remote-only
+fly deploy --config "$SCRIPT_DIR/fly.frontend.toml" --app "$FLY_APP_WEB" --dockerfile "$PROJECT_ROOT/frontend/Dockerfile" "$PROJECT_ROOT/frontend"
 
 step "Step 6/6: Generate Deploy Token for CI/CD"
 echo ""
