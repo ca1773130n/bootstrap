@@ -1,0 +1,24 @@
+{
+  "name": "bootstrap",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "lint": "make lint",
+    "test": "make test",
+    "pre-commit": "lint-staged && make test"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11"
+  },
+  "lint-staged": {
+    "frontend/**/*.{ts,tsx,vue,js,jsx}": [
+      "bash -c 'cd frontend && pnpm lint'"
+    ],
+    "backend/**/*.py": [
+      "bash -c 'cd backend && uv run ruff check --fix'",
+      "bash -c 'cd backend && uv run ruff format'"
+    ]
+  }
+}

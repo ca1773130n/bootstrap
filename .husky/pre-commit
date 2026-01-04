@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# ============================================================
+# STRICT PRE-COMMIT HOOK
+# ============================================================
+# This hook BLOCKS commits unless ALL checks pass:
+# 1. Lint staged files (eslint, ruff, mypy)
+# 2. Run ALL tests (pytest, vitest) with 100% coverage
+# 3. Type checking
+# ============================================================
+
+set -e  # Exit on any error
+
+# Get the project root directory (where .git is located)
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+echo "============================================================"
+echo "PRE-COMMIT: Running strict quality gates..."
+echo "============================================================"
+
+# Phase 1: Lint staged files
+echo ""
+echo "[1/3] Linting staged files..."
+pnpm lint-staged
+
+# Phase 2: Type checking
+echo ""
+echo "[2/3] Running type checks..."
+(cd frontend && pnpm type-check)
+(cd backend && uv run mypy .)
+
+# Phase 3: Run ALL tests (100% coverage required)
+echo ""
+echo "[3/3] Running ALL tests (100% coverage required)..."
+make test
+
+echo ""
+echo "============================================================"
+echo "PRE-COMMIT: All checks passed! Proceeding with commit."
+echo "============================================================"

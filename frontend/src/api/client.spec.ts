@@ -11,7 +11,7 @@ describe("ApiClient", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as ReturnType<typeof axios.create>);
+    vi.mocked(axios.create).mockReturnValue(mockAxiosInstance as unknown as ReturnType<typeof axios.create>);
   });
 
   describe("constructor", () => {

@@ -191,13 +191,63 @@ If mutation score drops below 80%, CI fails.
 | `.github/workflows/*` | Human approval |
 | `extras/constitution/*` | Human approval only |
 
+## Pre-Commit Enforcement (STRICT)
+
+**All commits are gated by automated hooks. No exceptions.**
+
+### Quality Gates (ALL REQUIRED)
+
+| Gate | Command | Threshold |
+|------|---------|-----------|
+| 1. Lint staged files | `pnpm lint-staged` | Zero errors |
+| 2. Type check (frontend) | `pnpm type-check` | Zero errors |
+| 3. Type check (backend) | `uv run mypy .` | Zero errors |
+| 4. Tests (backend) | `uv run pytest` | 100% coverage |
+| 5. Tests (frontend) | `pnpm test:coverage` | 100% coverage |
+
+### Automated Enforcement
+
+Pre-commit hooks are installed via **Husky** (`.husky/pre-commit`).
+A backup hook exists in `.git/hooks/pre-commit`.
+
+```bash
+# Hooks run automatically on git commit
+# If ANY gate fails, commit is BLOCKED
+```
+
+### For AI Agents
+
+Before committing, you MUST:
+1. Run `make lint` and fix all errors
+2. Run `make test` and ensure 100% coverage
+3. Only then proceed with `git commit`
+
+**FORBIDDEN for AI agents:**
+```bash
+git commit --no-verify  # NEVER USE
+git commit -n           # NEVER USE
+```
+
+### Quick Fix Commands
+
+```bash
+# Auto-fix lint errors
+cd frontend && pnpm lint          # Frontend
+cd backend && uv run ruff check --fix . && uv run ruff format .  # Backend
+
+# See missing coverage
+cd backend && uv run pytest --cov-report=term-missing
+cd frontend && pnpm test:coverage
+```
+
 ## Agent Rules Summary
 
 1. **Never push to main** - All changes via feature branches
-2. **Run tests before commit** - `make test` must pass
-3. **Preserve public APIs** - Unless explicitly told to break them
-4. **Ask when uncertain** - Confidence < 70% = stop and report
-5. **Document reasoning** - Commit messages explain "why"
+2. **Run lint AND tests before commit** - `make lint && make test` must pass
+3. **Never bypass pre-commit hooks** - `--no-verify` is FORBIDDEN
+4. **Preserve public APIs** - Unless explicitly told to break them
+5. **Ask when uncertain** - Confidence < 70% = stop and report
+6. **Document reasoning** - Commit messages explain "why"
 
 See `extras/constitution/agent_rules.md` for full governance rules.
 
