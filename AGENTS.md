@@ -200,3 +200,37 @@ If mutation score drops below 80%, CI fails.
 5. **Document reasoning** - Commit messages explain "why"
 
 See `extras/constitution/agent_rules.md` for full governance rules.
+
+## Slash Commands (oh-my-opencode)
+
+Invoke specialized agents via slash commands:
+
+| Command | Agent | Use When |
+|---------|-------|----------|
+| `/testing` | Testing Agent | Writing tests, coverage gaps, mutation testing |
+| `/backend` | Backend Agent | FastAPI, Python, database work |
+| `/frontend` | Frontend Agent | Vue 3, TypeScript, components |
+| `/review` | Reviewer Agent | Code review, PR review, security audit |
+| `/infra` | Infra Agent | Docker, CI/CD, deployment |
+
+### Auto-Spawn Rules for Sisyphus/Oracle
+
+Automatically spawn the appropriate agent based on context:
+
+| Trigger | Spawn |
+|---------|-------|
+| Files in `backend/**` | `/backend` |
+| Files in `frontend/**` | `/frontend` |
+| Files in `infra/**` or `extras/infra-fly/**` | `/infra` |
+| Writing or reviewing tests | `/testing` |
+| Coverage < 100% or mutation testing | `/testing` |
+| PR review or security audit | `/review` |
+| Before committing significant changes | `/review` |
+
+**Spawn via Task tool:**
+```
+Task(subagent_type="general", prompt="/testing <context>")
+Task(subagent_type="oracle", prompt="/review <context>")
+```
+
+Agent specs live in `extras/agents/*.agent.md` and commands in `.opencode/command/`.
