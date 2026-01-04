@@ -4,9 +4,9 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: app
+      POSTGRES_DB: ${DB_NAME:-app}
     ports:
-      - "5432:5432"
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -19,9 +19,10 @@ services:
   backend:
     build: ./backend
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/app
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/${DB_NAME:-app}
+      DB_SCHEMA: ${DB_SCHEMA:-public}
     depends_on:
       db:
         condition: service_healthy
@@ -32,9 +33,9 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_URL: http://localhost:${BACKEND_PORT:-8000}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -42,3 +43,4 @@ services:
 
 volumes:
   postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-bootstrap}_postgres

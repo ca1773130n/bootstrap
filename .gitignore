@@ -43,3 +43,4 @@ logs/
 # Local config
 *.local.json
 *.local.yaml
+backend/.hypothesis/

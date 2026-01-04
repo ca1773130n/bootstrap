@@ -18,6 +18,8 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.1.9",
     "mypy>=1.8.0",
+    "hypothesis>=6.100.0",
+    "mutmut>=2.4.0",
 ]
 
 [build-system]
@@ -43,3 +45,25 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = [
+    "--cov=app",
+    "--cov=main",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=100",
+]
+
+[tool.coverage.run]
+source = ["app", "."]
+branch = true
+omit = ["tests/*", "scripts/*"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

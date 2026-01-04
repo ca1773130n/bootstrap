@@ -1,4 +1,6 @@
 .PHONY: setup install dev dev-frontend dev-backend up down lint test build all
+.PHONY: openapi new-feature feature-up feature-down feature-clean
+.PHONY: test-adversarial test-mutation test-properties
 
 # === Setup ===
 setup:
@@ -7,7 +9,7 @@ setup:
 
 install: setup
 	cd frontend && pnpm install
-	cd backend && uv sync
+	cd backend && uv sync --all-extras
 
 # === Development ===
 dev:
@@ -34,6 +36,25 @@ down:
 logs:
 	docker compose logs -f
 
+# === Feature Development ===
+new-feature:
+	@./scripts/new-feature.sh $(NAME)
+
+feature-up:
+	docker compose --env-file .env.local up -d
+
+feature-down:
+	docker compose --env-file .env.local down
+
+feature-clean:
+	docker compose --env-file .env.local down -v
+	rm -f .env.local
+
+# === API Generation ===
+openapi:
+	cd backend && uv run python scripts/export_openapi.py
+	cd frontend && pnpm generate:api
+
 # === Quality ===
 lint:
 	cd frontend && pnpm lint
@@ -42,7 +63,27 @@ lint:
 
 test:
 	cd backend && uv run pytest
-	cd frontend && pnpm test --run
+	cd frontend && pnpm test:coverage
+
+test-properties:
+	cd backend && uv run pytest tests/test_properties.py -v
+
+test-mutation:
+	cd backend && chmod +x scripts/mutation-test.sh && ./scripts/mutation-test.sh
+	cd frontend && pnpm test:mutation
+
+test-adversarial:
+	@echo "Phase 1: Coverage Tests"
+	cd backend && uv run pytest --cov-fail-under=100
+	cd frontend && pnpm test:coverage
+	@echo ""
+	@echo "Phase 2: Property-Based Tests"
+	cd backend && uv run pytest tests/test_properties.py -v
+	@echo ""
+	@echo "Phase 3: Mutation Tests"
+	$(MAKE) test-mutation
+	@echo ""
+	@echo "All adversarial tests passed!"
 
 build:
 	cd frontend && pnpm build
