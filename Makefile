@@ -95,10 +95,10 @@ all: lint test build
 doc-sync:
 	@echo "Running documentation sync for HEAD..."
 	@if command -v opencode >/dev/null 2>&1; then \
-		opencode --prompt "/doc-sync HEAD"; \
+		opencode run "/doc-sync HEAD"; \
 	else \
 		echo "Error: opencode not found"; \
-		echo "Install: npm install -g @anthropic/opencode"; \
+		echo "Install: npm install -g opencode"; \
 		echo "Or run /doc-sync manually in your AI assistant"; \
 		exit 1; \
 	fi

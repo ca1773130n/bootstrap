@@ -72,8 +72,8 @@ if command -v opencode >/dev/null 2>&1; then
   echo "[post-commit] Running documentation sync via opencode..."
   echo ""
   
-  # Run SYNCHRONOUSLY - blocks until complete
-  opencode --prompt "/doc-sync HEAD" || {
+  # Run SYNCHRONOUSLY in non-interactive mode - blocks until complete
+  opencode run "/doc-sync HEAD" || {
     echo ""
     echo "[post-commit] WARNING: Doc sync encountered an issue"
     echo "[post-commit] Please run manually: /doc-sync or make doc-sync"
@@ -91,7 +91,7 @@ else
   echo "  make doc-sync"
   echo ""
   echo "Install opencode for automatic doc sync:"
-  echo "  npm install -g @anthropic/opencode"
+  echo "  npm install -g opencode"
 fi
 
 echo "============================================================"
