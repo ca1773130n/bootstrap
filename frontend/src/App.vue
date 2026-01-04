@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { api } from "./api";
+import { apiClient } from "./api/client";
 
 const status = ref<string>("loading...");
 
 onMounted(async () => {
   try {
-    const response = await api.get("/health");
-    status.value = response.data.status;
+    const response = await apiClient.health();
+    status.value = response.status || "ok";
   } catch {
     status.value = "error";
   }

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount, flushPromises } from "@vue/test-utils";
 import App from "./App.vue";
-import { api } from "./api";
+import { apiClient } from "./api/client";
 
-vi.mock("./api", () => ({
-  api: {
-    get: vi.fn(),
+vi.mock("./api/client", () => ({
+  apiClient: {
+    health: vi.fn(),
   },
 }));
 
@@ -15,20 +15,34 @@ describe("App", () => {
   });
 
   it("displays loading state initially", () => {
-    vi.mocked(api.get).mockImplementation(() => new Promise(() => {}));
+    vi.mocked(apiClient.health).mockImplementation(() => new Promise(() => {}));
     const wrapper = mount(App);
     expect(wrapper.text()).toContain("loading...");
   });
 
   it("displays status on successful API call", async () => {
-    vi.mocked(api.get).mockResolvedValue({ data: { status: "ok" } });
+    vi.mocked(apiClient.health).mockResolvedValue({ status: "ok" });
+    const wrapper = mount(App);
+    await flushPromises();
+    expect(wrapper.text()).toContain("ok");
+  });
+
+  it("displays 'ok' when status is undefined", async () => {
+    vi.mocked(apiClient.health).mockResolvedValue({});
+    const wrapper = mount(App);
+    await flushPromises();
+    expect(wrapper.text()).toContain("ok");
+  });
+
+  it("displays 'ok' when status is empty string", async () => {
+    vi.mocked(apiClient.health).mockResolvedValue({ status: "" });
     const wrapper = mount(App);
     await flushPromises();
     expect(wrapper.text()).toContain("ok");
   });
 
   it("displays error on failed API call", async () => {
-    vi.mocked(api.get).mockRejectedValue(new Error("Network error"));
+    vi.mocked(apiClient.health).mockRejectedValue(new Error("Network error"));
     const wrapper = mount(App);
     await flushPromises();
     expect(wrapper.text()).toContain("error");
