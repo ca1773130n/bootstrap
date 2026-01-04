@@ -212,6 +212,7 @@ Invoke specialized agents via slash commands:
 | `/frontend` | Frontend Agent | Vue 3, TypeScript, components |
 | `/review` | Reviewer Agent | Code review, PR review, security audit |
 | `/infra` | Infra Agent | Docker, CI/CD, deployment |
+| `/simplify` | Simplifier Agent | **Pre-commit (mandatory)**, reduce complexity |
 
 ### Auto-Spawn Rules for Sisyphus/Oracle
 
@@ -225,7 +226,8 @@ Automatically spawn the appropriate agent based on context:
 | Writing or reviewing tests | `/testing` |
 | Coverage < 100% or mutation testing | `/testing` |
 | PR review or security audit | `/review` |
-| Before committing significant changes | `/review` |
+| **Before EVERY commit** | `/simplify` (MANDATORY) |
+| After completing code changes | `/simplify` then `/review` |
 
 **Spawn via Task tool:**
 ```
