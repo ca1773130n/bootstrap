@@ -1,6 +1,7 @@
 .PHONY: setup install dev dev-frontend dev-backend up down lint test build all
 .PHONY: openapi new-feature feature-up feature-down feature-clean
 .PHONY: test-adversarial test-mutation test-properties
+.PHONY: doc-sync
 
 # === Setup ===
 setup:
@@ -89,3 +90,15 @@ build:
 	cd frontend && pnpm build
 
 all: lint test build
+
+# === Documentation ===
+doc-sync:
+	@echo "Running documentation sync for HEAD..."
+	@if command -v opencode >/dev/null 2>&1; then \
+		opencode --prompt "/doc-sync HEAD"; \
+	else \
+		echo "Error: opencode not found"; \
+		echo "Install: npm install -g @anthropic/opencode"; \
+		echo "Or run /doc-sync manually in your AI assistant"; \
+		exit 1; \
+	fi

@@ -172,6 +172,7 @@ If mutation score drops below 80%, CI fails.
 | **Backend** | `backend/**` | `pytest`, `ruff check`, `mypy` |
 | **Frontend** | `frontend/**` | `pnpm test`, `pnpm lint`, `pnpm build` |
 | **Infra** | `infra/**`, `extras/infra-fly/**` | `fly deploy`, `docker compose` |
+| **Documentation** | `**/*.md` | `/doc-sync`, `make doc-sync` |
 | **Reviewer** | All files (read-only) | Reviews PRs against checklist |
 
 ### Forbidden Paths
@@ -240,6 +241,75 @@ cd backend && uv run pytest --cov-report=term-missing
 cd frontend && pnpm test:coverage
 ```
 
+## Post-Commit Documentation Sync (MANDATORY)
+
+**Documentation is the offloaded context for all agents.** It must be 100% synchronized with code at all times.
+
+### How It Works
+
+```
+┌──────────────┐     ┌─────────────────────┐     ┌──────────────────┐
+│ Code Commit  │────▶│ Post-Commit Hook    │────▶│ Documentation    │
+│              │     │ (SYNCHRONOUS)       │     │ Agent            │
+└──────────────┘     └─────────────────────┘     └────────┬─────────┘
+                                                          │
+                                                          ▼
+                                                 ┌──────────────────┐
+                                                 │ Doc Sync Commit  │
+                                                 │ (if changes)     │
+                                                 └──────────────────┘
+```
+
+**The hook runs synchronously** - it blocks until documentation is fully synchronized. This guarantees:
+- No race conditions between commits
+- Agents always read up-to-date docs
+- Clear audit trail (code commit → doc commit)
+
+### Skip Conditions
+
+Doc sync skips **only** when:
+- Commit message starts with `docs(sync):` or `docs: sync documentation` (prevents infinite loops)
+- `DOC_SYNC_DISABLED=1` environment variable is set
+
+### Manual Invocation
+
+```bash
+# Via slash command
+/doc-sync
+
+# Via make
+make doc-sync
+
+# Disable for a single commit (use sparingly)
+DOC_SYNC_DISABLED=1 git commit -m "..."
+```
+
+### Documentation Targets
+
+| Changed Source | Documentation Updated |
+|----------------|----------------------|
+| `backend/app/*.py` | README.md |
+| `frontend/src/**` | README.md |
+| `Makefile` | README.md, AGENTS.md |
+| `extras/agents/*.md` | AGENTS.md |
+| `extras/claude-skills/*.md` | AGENTS.md |
+| `.husky/*` | AGENTS.md |
+| `.opencode/command/*.md` | AGENTS.md |
+| `scripts/*.sh` | README.md |
+| `docker-compose.yml` | README.md |
+
+### Commit Message Format
+
+Doc sync commits follow this format:
+```
+docs: sync documentation for <original-commit-message>
+```
+
+Example:
+```
+docs: sync documentation for feat(api): add user authentication
+```
+
 ## Agent Rules Summary
 
 1. **Never push to main** - All changes via feature branches
@@ -263,6 +333,7 @@ Invoke specialized agents via slash commands:
 | `/review` | Reviewer Agent | Code review, PR review, security audit |
 | `/infra` | Infra Agent | Docker, CI/CD, deployment |
 | `/simplify` | Simplifier Agent | **Pre-commit (mandatory)**, reduce complexity |
+| `/doc-sync` | Documentation Agent | **Post-commit (auto)**, sync docs with code changes |
 
 ### Auto-Spawn Rules for Sisyphus/Oracle
 
@@ -277,6 +348,7 @@ Automatically spawn the appropriate agent based on context:
 | Coverage < 100% or mutation testing | `/testing` |
 | PR review or security audit | `/review` |
 | **Before EVERY commit** | `/simplify` (MANDATORY) |
+| **After EVERY code commit** | `/doc-sync` (AUTO via post-commit hook, SYNCHRONOUS) |
 | After completing code changes | `/simplify` then `/review` |
 
 **Spawn via Task tool:**

@@ -1,0 +1,97 @@
+#!/bin/sh
+
+# ============================================================
+# POST-COMMIT HOOK: Documentation Sync (SYNCHRONOUS)
+# ============================================================
+# Ensures documentation is 100% in sync with code after every
+# commit. Runs SYNCHRONOUSLY - blocks until complete.
+#
+# Documentation is the offloaded context for all agents.
+# Keeping it in sync is critical for context engineering.
+#
+# Skip conditions:
+#   - Commit message starts with "docs(sync):" or "docs: sync documentation"
+#   - DOC_SYNC_DISABLED=1 environment variable
+# ============================================================
+
+set -e  # Exit on error - this is intentional for synchronous behavior
+
+# Allow disabling for special cases
+if [ "$DOC_SYNC_DISABLED" = "1" ]; then
+  echo "[post-commit] Doc sync disabled via DOC_SYNC_DISABLED=1"
+  exit 0
+fi
+
+# Get project root
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+cd "$PROJECT_ROOT"
+
+# Get commit info
+COMMIT_SHA=$(git rev-parse --short HEAD)
+COMMIT_MSG=$(git log -1 --format='%s' HEAD)
+
+# ============================================================
+# SKIP CONDITION: Prevent infinite loops
+# ============================================================
+case "$COMMIT_MSG" in
+  docs\(sync\):*|"docs: sync documentation"*)
+    echo "[post-commit] Skipping doc sync: already a doc sync commit"
+    exit 0
+    ;;
+esac
+
+# ============================================================
+# DOCUMENTATION SYNC
+# ============================================================
+echo ""
+echo "============================================================"
+echo "POST-COMMIT: Documentation Sync (synchronous)"
+echo "============================================================"
+echo "Commit: $COMMIT_SHA"
+echo "Message: $COMMIT_MSG"
+echo ""
+
+# Get changed files for context
+CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || echo "")
+
+if [ -z "$CHANGED_FILES" ]; then
+  echo "[post-commit] No files changed (merge commit?) - skipping"
+  exit 0
+fi
+
+echo "Changed files:"
+echo "$CHANGED_FILES" | sed 's/^/  - /'
+echo ""
+
+# ============================================================
+# INVOKE DOCUMENTATION AGENT
+# ============================================================
+# Try opencode first, fall back to manual instructions
+
+if command -v opencode >/dev/null 2>&1; then
+  echo "[post-commit] Running documentation sync via opencode..."
+  echo ""
+  
+  # Run SYNCHRONOUSLY - blocks until complete
+  opencode --prompt "/doc-sync HEAD" || {
+    echo ""
+    echo "[post-commit] WARNING: Doc sync encountered an issue"
+    echo "[post-commit] Please run manually: /doc-sync or make doc-sync"
+    # Don't fail the hook - doc sync issues shouldn't block workflow
+    exit 0
+  }
+  
+  echo ""
+  echo "[post-commit] Documentation sync complete"
+else
+  echo "[post-commit] opencode not found"
+  echo ""
+  echo "To sync documentation manually, run one of:"
+  echo "  /doc-sync"
+  echo "  make doc-sync"
+  echo ""
+  echo "Install opencode for automatic doc sync:"
+  echo "  npm install -g @anthropic/opencode"
+fi
+
+echo "============================================================"

@@ -100,6 +100,7 @@ make lint        # Run linters
 make test        # Run tests
 make build       # Production build
 make all         # Lint + test + build
+make doc-sync    # Sync documentation with code changes
 ```
 
 ## Environment Variables
