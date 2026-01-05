@@ -38,7 +38,7 @@ make dev-backend   # Terminal 2: http://localhost:8000
 
 ### 3. Set Up Database (Oracle Cloud Free Tier)
 
-See [extras/infra-fly/postgres-vps.md](extras/infra-fly/postgres-vps.md) for full guide.
+See [infra/postgres-vps.md](infra/postgres-vps.md) for full guide.
 
 ```bash
 # SSH into your VPS
@@ -65,7 +65,7 @@ CREATE DATABASE appdb OWNER appuser;
 nano .env.fly
 
 # Deploy everything
-./extras/infra-fly/fly-setup.sh
+./infra/fly-setup.sh
 ```
 
 Your app will be live at:
@@ -77,14 +77,13 @@ Your app will be live at:
 ```
 ├── frontend/              # Vue 3 + Vite + TypeScript
 ├── backend/               # FastAPI + Pydantic
-├── infra/                 # Database schema
+├── infra/                 # Database schema, Fly.io deployment
+│   ├── init.sql           # Database schema
+│   ├── fly-setup.sh       # One-command deploy
+│   ├── fly.*.toml         # Fly configs
+│   └── postgres-vps.md    # Database setup guide
 ├── scripts/
 │   └── init.sh            # Project initialization
-├── extras/
-│   └── infra-fly/         # Fly.io deployment
-│       ├── fly-setup.sh   # One-command deploy
-│       ├── fly.*.toml     # Fly configs
-│       └── postgres-vps.md # Database setup guide
 ├── docker-compose.yml     # Local development
 └── Makefile               # Common commands
 ```
@@ -121,7 +120,7 @@ make doc-sync    # Sync documentation with code changes
 
 ## Deployment
 
-The `./scripts/init.sh` script configures your app name across all config files. Then `./extras/infra-fly/fly-setup.sh` handles:
+The `./scripts/init.sh` script configures your app name across all config files. Then `./infra/fly-setup.sh` handles:
 
 1. Installing Fly CLI
 2. Authentication
@@ -133,8 +132,6 @@ The `./scripts/init.sh` script configures your app name across all config files.
 
 | Folder | Purpose |
 |--------|---------|
-| `extras/infra-fly/` | Fly.io deployment + PostgreSQL VPS guide |
-| `extras/workflows/` | Additional GitHub Actions |
 | `extras/agents/` | AI agent definitions |
 | `extras/constitution/` | AI governance rules |
 | `extras/claude-skills/` | Claude Code skills |

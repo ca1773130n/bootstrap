@@ -20,6 +20,8 @@ jobs:
   analyze:
     name: Analyze Repository
     runs-on: ubuntu-latest
+    # Only run scheduled jobs on non-fork repos
+    if: github.event_name == 'workflow_dispatch' || github.event.repository.fork == false
     outputs:
       has_issues: ${{ steps.check.outputs.has_issues }}
     steps:
@@ -58,6 +60,7 @@ jobs:
   dead-code:
     name: Find Dead Code
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       
@@ -90,6 +93,7 @@ jobs:
   structure-check:
     name: Structure Validation
     runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       
@@ -100,18 +104,18 @@ jobs:
           required_dirs=(
             "frontend/src"
             "backend/app"
-            "constitution"
-            ".claude/skills"
+            "extras/constitution"
+            "extras/claude-skills"
           )
           
           for dir in "${required_dirs[@]}"; do
             if [ ! -d "$dir" ]; then
-              echo "❌ Missing required directory: $dir"
+              echo "Missing required directory: $dir"
               exit 1
             fi
           done
           
-          echo "✅ All required directories present"
+          echo "All required directories present"
           
       - name: Check for convention violations
         run: |
@@ -123,7 +127,7 @@ jobs:
           
           misplaced=$(find backend/app -name "test_*.py" -o -name "*_test.py" 2>/dev/null)
           if [ -n "$misplaced" ]; then
-            echo "⚠️ Test files found outside tests/ directory:"
+            echo "Test files found outside tests/ directory:"
             echo "$misplaced"
           fi
           
@@ -133,7 +137,7 @@ jobs:
     name: Create Report
     runs-on: ubuntu-latest
     needs: [analyze, dead-code, structure-check]
-    if: always()
+    if: always() && (needs.analyze.result != 'skipped')
     steps:
       - uses: actions/checkout@v4
       

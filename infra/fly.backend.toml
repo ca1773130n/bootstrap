@@ -2,8 +2,8 @@ app = "myapp-api"
 primary_region = "nrt"
 
 [build]
-  dockerfile = "../../backend/Dockerfile"
-  context = "../../backend"
+  dockerfile = "../backend/Dockerfile"
+  context = "../backend"
 
 [env]
   PORT = "8000"

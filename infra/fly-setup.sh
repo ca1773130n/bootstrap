@@ -59,7 +59,7 @@ step "Step 4/6: Set Secrets"
 "$SCRIPT_DIR/fly-secrets.sh" "$ENV_FILE"
 
 step "Step 5/6: Deploy"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "Deploying backend..."
 fly deploy --config "$SCRIPT_DIR/fly.backend.toml" --app "$FLY_APP_API" --dockerfile "$PROJECT_ROOT/backend/Dockerfile" "$PROJECT_ROOT/backend"

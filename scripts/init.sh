@@ -38,23 +38,23 @@ echo ""
 cd "$PROJECT_ROOT"
 
 log "Updating fly.backend.toml..."
-sed -i.bak "s/myapp-api/${APP_NAME}-api/g" extras/infra-fly/fly.backend.toml
-sed -i.bak "s/myapp-web/${APP_NAME}-web/g" extras/infra-fly/fly.backend.toml
-rm -f extras/infra-fly/fly.backend.toml.bak
+sed -i.bak "s/myapp-api/${APP_NAME}-api/g" infra/fly.backend.toml
+sed -i.bak "s/myapp-web/${APP_NAME}-web/g" infra/fly.backend.toml
+rm -f infra/fly.backend.toml.bak
 
 log "Updating fly.frontend.toml..."
-sed -i.bak "s/myapp-api/${APP_NAME}-api/g" extras/infra-fly/fly.frontend.toml
-sed -i.bak "s/myapp-web/${APP_NAME}-web/g" extras/infra-fly/fly.frontend.toml
-rm -f extras/infra-fly/fly.frontend.toml.bak
+sed -i.bak "s/myapp-api/${APP_NAME}-api/g" infra/fly.frontend.toml
+sed -i.bak "s/myapp-web/${APP_NAME}-web/g" infra/fly.frontend.toml
+rm -f infra/fly.frontend.toml.bak
 
 log "Updating .env.fly.example..."
-sed -i.bak "s/myapp-api/${APP_NAME}-api/g" extras/infra-fly/.env.fly.example
-sed -i.bak "s/myapp-web/${APP_NAME}-web/g" extras/infra-fly/.env.fly.example
-rm -f extras/infra-fly/.env.fly.example.bak
+sed -i.bak "s/myapp-api/${APP_NAME}-api/g" infra/.env.fly.example
+sed -i.bak "s/myapp-web/${APP_NAME}-web/g" infra/.env.fly.example
+rm -f infra/.env.fly.example.bak
 
 if [ ! -f ".env.fly" ]; then
     log "Creating .env.fly from template..."
-    cp extras/infra-fly/.env.fly.example .env.fly
+    cp infra/.env.fly.example .env.fly
     warn "Edit .env.fly with your database credentials before deploying"
 else
     warn ".env.fly already exists, skipping..."
@@ -65,7 +65,7 @@ log "Project initialized as: $APP_NAME"
 echo ""
 echo "Next steps:"
 echo "  1. Edit .env.fly with your DATABASE_URL and SECRET_KEY"
-echo "  2. Run: ./extras/infra-fly/fly-setup.sh"
+echo "  2. Run: ./infra/fly-setup.sh"
 echo ""
 echo "Your apps will be:"
 echo "  - Backend: https://${APP_NAME}-api.fly.dev"

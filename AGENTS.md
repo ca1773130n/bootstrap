@@ -171,7 +171,7 @@ If mutation score drops below 80%, CI fails.
 |-------|------|----------|
 | **Backend** | `backend/**` | `pytest`, `ruff check`, `mypy` |
 | **Frontend** | `frontend/**` | `pnpm test`, `pnpm lint`, `pnpm build` |
-| **Infra** | `infra/**`, `extras/infra-fly/**` | `fly deploy`, `docker compose` |
+| **Infra** | `infra/**` | `fly deploy`, `docker compose` |
 | **Documentation** | `**/*.md` | `/doc-sync`, `make doc-sync` |
 | **Reviewer** | All files (read-only) | Reviews PRs against checklist |
 
@@ -343,7 +343,7 @@ Automatically spawn the appropriate agent based on context:
 |---------|-------|
 | Files in `backend/**` | `/backend` |
 | Files in `frontend/**` | `/frontend` |
-| Files in `infra/**` or `extras/infra-fly/**` | `/infra` |
+| Files in `infra/**` | `/infra` |
 | Writing or reviewing tests | `/testing` |
 | Coverage < 100% or mutation testing | `/testing` |
 | PR review or security audit | `/review` |

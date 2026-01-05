@@ -10,13 +10,15 @@ on:
       - "**.md"
       - "docs/**"
   schedule:
-    # Run weekly to catch drift
-    - cron: "0 0 * * 0"
+    # Run daily at 3 AM UTC (offset from repo-garden at 2 AM)
+    - cron: "0 3 * * *"
 
 jobs:
   markdown-lint:
     name: Markdown Lint
     runs-on: ubuntu-latest
+    # Only run scheduled jobs on non-fork repos
+    if: github.event_name != 'schedule' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       
@@ -34,6 +36,7 @@ jobs:
   link-check:
     name: Link Validation
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       
@@ -46,6 +49,7 @@ jobs:
   code-block-validation:
     name: Code Block Validation
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       
@@ -113,6 +117,7 @@ jobs:
   api-doc-sync:
     name: API Documentation Sync
     runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' || github.event.repository.fork == false
     steps:
       - uses: actions/checkout@v4
       

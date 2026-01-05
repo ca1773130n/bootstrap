@@ -64,7 +64,7 @@ git diff-tree --no-commit-id --name-only -r HEAD
 | 3 | `extras/agents/*.md` | Individual agent specifications |
 | 4 | `extras/claude-skills/*.md` | Skill definitions |
 | 5 | `extras/constitution/*.md` | Governance rules |
-| 6 | `extras/infra-fly/*.md` | Infrastructure guides |
+| 6 | `infra/*.md` | Infrastructure guides |
 
 ## Sync Mapping
 

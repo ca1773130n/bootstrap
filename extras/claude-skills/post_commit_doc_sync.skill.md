@@ -111,7 +111,7 @@ IMPACT_MAP:
   extras/constitution/*.md  -> AGENTS.md
   .husky/*                  -> AGENTS.md
   .opencode/command/*.md    -> AGENTS.md
-  infra/*                   -> README.md, extras/infra-fly/*.md
+  infra/*                   -> README.md, infra/*.md
   .github/workflows/*       -> README.md
 ```
 

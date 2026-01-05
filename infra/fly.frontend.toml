@@ -2,8 +2,8 @@ app = "myapp-web"
 primary_region = "nrt"
 
 [build]
-  dockerfile = "../../frontend/Dockerfile"
-  context = "../../frontend"
+  dockerfile = "../frontend/Dockerfile"
+  context = "../frontend"
   [build.args]
     VITE_API_URL = "https://myapp-api.fly.dev"
 
