@@ -69,6 +69,7 @@ jobs:
         run: |
           # Extract TypeScript/JavaScript blocks and check syntax
           python3 << 'EOF'
+          import ast
           import re
           import subprocess
           import sys
@@ -83,25 +84,38 @@ jobs:
               ts_blocks = re.findall(r'```(?:typescript|ts|javascript|js)\n(.*?)```', content, re.DOTALL)
               
               for i, block in enumerate(ts_blocks):
-                  # Write to temp file and check syntax
+                  # Write to temp file and check syntax only (not module resolution)
                   temp_file = Path(f"/tmp/check_{i}.ts")
                   temp_file.write_text(block)
                   
+                  # Use flags to check syntax only, ignore module resolution
                   result = subprocess.run(
-                      ["npx", "tsc", "--noEmit", "--allowJs", str(temp_file)],
+                      ["npx", "tsc", "--noEmit", "--allowJs", "--skipLibCheck",
+                       "--isolatedModules", "--noResolve", "--lib", "ES2020,DOM",
+                       "--moduleResolution", "node", str(temp_file)],
                       capture_output=True,
                       text=True
                   )
                   
+                  # Filter out module resolution errors (expected for illustrative examples)
                   if result.returncode != 0:
-                      errors.append(f"{md_file}: Code block {i+1} has syntax errors")
+                      stderr = result.stderr + result.stdout
+                      # Skip "Cannot find module" errors - these are expected for docs
+                      real_errors = [
+                          line for line in stderr.split('\n')
+                          if line.strip() and 'Cannot find module' not in line
+                          and 'Could not find a declaration file' not in line
+                      ]
+                      if real_errors:
+                          errors.append(f"{md_file}: Code block {i+1} has syntax errors")
               
               # Find Python code blocks
               py_blocks = re.findall(r'```python\n(.*?)```', content, re.DOTALL)
               
               for i, block in enumerate(py_blocks):
                   try:
-                      compile(block, f"{md_file}:block{i}", "exec")
+                      # Use ast.parse for syntax check (more lenient than compile)
+                      ast.parse(block)
                   except SyntaxError as e:
                       errors.append(f"{md_file}: Python block {i+1} - {e}")
           

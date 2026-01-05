@@ -137,14 +137,14 @@ Each feature gets unique ports derived from feature name hash. No collisions.
 ### Property Tests: Human Defines Invariants, AI Generates Cases
 
 ```python
-# Human writes the invariant
-def test_balance_never_negative(self, transactions):
+# Human writes the invariant, AI/Hypothesis generates test cases
+from hypothesis import given, strategies as st
+
+@given(transactions=st.lists(st.builds(Transaction)))
+def test_balance_never_negative(transactions):
     """INVARIANT: Account balance can never go below zero"""
     account = process_transactions(transactions)
     assert account.balance >= 0
-
-# AI/Hypothesis generates thousands of transaction sequences
-@given(transactions=st.lists(st.builds(Transaction, ...)))
 ```
 
 ### Mutation Testing: Validates Test Strength
