@@ -345,6 +345,15 @@ Skills are automatically loaded based on user intent. **MUST LOAD** when trigger
 
 **How to detect**: If user message contains ANY trigger phrase above, load the skill BEFORE responding.
 
+**CRITICAL - `plan-interview` also triggers on COMPLEX FEATURE REQUESTS:**
+- "I want to build X" / "build me X" / "create X app/feature"
+- "implement X" / "add X feature" / "I need X functionality"  
+- Any request requiring database + backend + frontend work together
+- Any greenfield feature (new project/app using this repo)
+- Any request with ambiguous scope needing clarification
+
+**Example**: "I want to build a notes app using this bootstrap repo" → MUST load plan-interview skill first!
+
 ### Auto-Spawn Rules for Sisyphus/Oracle
 
 Automatically spawn the appropriate agent based on context:

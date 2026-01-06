@@ -3,10 +3,24 @@ name: plan-interview
 version: 1.0.0
 type: planning
 description: |
-  MUST LOAD when user enters PLANNING MODE or PLAN MODE.
-  Triggers: "plan a feature", "spec generation", "project goal", "define requirements",
-  "let's plan", "planning mode", "create a spec", "feature specification".
-  Conducts deep interview → outputs formal spec document to docs/specs/.
+  MUST LOAD this skill file for ANY of these situations:
+  
+  1. EXPLICIT PLANNING: "planning mode", "plan mode", "let's plan", "spec generation",
+     "create a spec", "define requirements", "project goal"
+  
+  2. COMPLEX FEATURE REQUESTS (multi-step, needs clarification):
+     - "I want to build X" / "build me X" / "create X app/feature"
+     - "implement X" / "add X feature" / "I need X functionality"
+     - Any request requiring database + backend + frontend work
+     - Any request with ambiguous scope or multiple interpretations
+  
+  3. NEW PROJECT/FEATURE FROM SCRATCH:
+     - "using this repo/template, build X"
+     - "transform this into X"
+     - Any greenfield feature development
+  
+  ACTION: Read this SKILL.md file FIRST, then conduct deep interview per protocol.
+  OUTPUT: Formal spec document to docs/specs/
 scope:
   - planning
   - plan mode
@@ -15,14 +29,22 @@ scope:
   - requirements
   - specification
   - project goal
+  - build
+  - create
+  - implement
+  - feature request
 triggers:
   - user says "planning mode" or "plan mode"
+  - user says "I want to build/create/implement X"
+  - user says "build me X" or "create X app/feature"
+  - user requests a complex multi-step feature
   - user requests spec generation or specification
   - user asks to plan a feature or project goal
   - user says "let's plan" or "define requirements"
   - user provides a plan file to review
   - ambiguous feature request needing clarification
   - user asks to create or write a spec
+  - greenfield feature requiring DB + API + UI work
 output: spec file written to docs/specs/ or user-specified location
 ---
 
