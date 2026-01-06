@@ -2,6 +2,16 @@
 
 AI-agent friendly development guide for this Vue 3 + FastAPI project.
 
+> **⚠️ BEFORE RESPONDING TO ANY USER REQUEST:**
+> 
+> If user asks to **build/create/implement a feature/app** (e.g., "I want to build a notes app", "make me a journal app", "create X using this repo"):
+> 
+> 1. **FIRST**: Read `.opencode/skill/plan-interview/SKILL.md` using the Read tool
+> 2. **THEN**: Follow the interview protocol in that file
+> 3. **DO NOT** start exploring code or asking ad-hoc questions first
+> 
+> See [Auto-Load Skills](#auto-load-skills) for full trigger list.
+
 ## Overview
 
 This project uses **adversarial testing patterns** to ensure AI-generated code meets production quality standards. Humans and AI agents work in complementary roles: one writes code, the other writes tests.
@@ -353,6 +363,12 @@ Skills are automatically loaded based on user intent. **MUST LOAD** when trigger
 - Any request with ambiguous scope needing clarification
 
 **Example**: "I want to build a notes app using this bootstrap repo" → MUST load plan-interview skill first!
+
+**HOW TO LOAD A SKILL (MANDATORY STEPS):**
+1. **FIRST ACTION**: Use the Read tool to read `.opencode/skill/plan-interview/SKILL.md`
+2. Follow the interview protocol defined in that file EXACTLY
+3. Do NOT start exploring code or asking ad-hoc questions until you've read the skill file
+4. The skill file contains the structured interview phases - use them
 
 ### Auto-Spawn Rules for Sisyphus/Oracle
 

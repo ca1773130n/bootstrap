@@ -3,23 +3,28 @@ name: plan-interview
 version: 1.0.0
 type: planning
 description: |
-  MUST LOAD this skill file for ANY of these situations:
+  ⚠️ AGENT: YOU MUST READ THIS FILE BEFORE RESPONDING TO THE USER.
   
-  1. EXPLICIT PLANNING: "planning mode", "plan mode", "let's plan", "spec generation",
+  TRIGGER CONDITIONS - Load this skill when user says ANY of:
+  
+  1. EXPLICIT PLANNING KEYWORDS:
+     "planning mode", "plan mode", "let's plan", "spec generation",
      "create a spec", "define requirements", "project goal"
   
-  2. COMPLEX FEATURE REQUESTS (multi-step, needs clarification):
-     - "I want to build X" / "build me X" / "create X app/feature"
-     - "implement X" / "add X feature" / "I need X functionality"
-     - Any request requiring database + backend + frontend work
-     - Any request with ambiguous scope or multiple interpretations
+  2. COMPLEX FEATURE REQUESTS:
+     - "I want to build/create/make X"
+     - "build me X" / "create X app/feature"  
+     - "implement X" / "add X feature"
+     - Requests needing database + backend + frontend together
+     - Ambiguous scope or multiple interpretations
   
   3. NEW PROJECT/FEATURE FROM SCRATCH:
-     - "using this repo/template, build X"
+     - "using this repo, build X"
      - "transform this into X"
+     - "exploit this as bootstrap for X"
      - Any greenfield feature development
   
-  ACTION: Read this SKILL.md file FIRST, then conduct deep interview per protocol.
+  ⚠️ DO NOT explore codebase first. READ THIS FILE → follow interview protocol → THEN explore.
   OUTPUT: Formal spec document to docs/specs/
 scope:
   - planning
