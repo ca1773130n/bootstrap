@@ -38,7 +38,7 @@ jobs:
       - name: Check links
         uses: lycheeverse/lychee-action@v1
         with:
-          args: --verbose --no-progress "**/*.md"
+          args: --verbose --no-progress --config .lychee.toml "**/*.md"
           fail: true
 
   api-doc-sync:
