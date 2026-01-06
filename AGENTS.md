@@ -3,13 +3,13 @@
 AI-agent friendly development guide for this Vue 3 + FastAPI project.
 
 > **⚠️ BEFORE RESPONDING TO ANY USER REQUEST:**
-> 
+>
 > If user asks to **build/create/implement a feature/app** (e.g., "I want to build a notes app", "make me a journal app", "create X using this repo"):
-> 
+>
 > 1. **FIRST**: Read `.opencode/skill/plan-interview/SKILL.md` using the Read tool
 > 2. **THEN**: Follow the interview protocol in that file
 > 3. **DO NOT** start exploring code or asking ad-hoc questions first
-> 
+>
 > See [Auto-Load Skills](#auto-load-skills) for full trigger list.
 
 ## Overview

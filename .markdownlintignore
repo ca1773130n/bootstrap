@@ -1,0 +1,5 @@
+node_modules/
+.venv/
+frontend/node_modules/
+backend/.venv/
+.opencode/node_modules/
