@@ -1,0 +1,25 @@
+# Lychee link checker configuration
+# https://lychee.cli.rs/usage/config/
+
+# Exclude URLs that return 403 to bots or are known to be valid but unreachable
+exclude = [
+  # Claude/Anthropic blocks automated requests
+  "https://claude.ai/*",
+  # GitHub edit links (require auth)
+  "https://github.com/.*/edit/.*",
+  # Localhost URLs (expected to fail in CI)
+  "http://localhost:*",
+  "https://localhost:*",
+]
+
+# Accept these status codes as valid
+accept = [200, 204, 301, 302, 403, 429]
+
+# Timeout for requests
+timeout = 20
+
+# Don't check email addresses
+exclude_mail = true
+
+# Max concurrent requests
+max_concurrency = 4
