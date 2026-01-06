@@ -41,6 +41,33 @@ case "$COMMIT_MSG" in
 esac
 
 # ============================================================
+# SKIP CONDITION: Only pure documentation files changed
+# ============================================================
+# Skip doc-sync if NONE of the "source" files that need syncing changed.
+#
+# Source files that NEED doc sync (changes here → update docs):
+#   - backend/app/*.py → README.md
+#   - frontend/src/** → README.md
+#   - Makefile, scripts/*.sh, docker-compose.yml → README.md
+#   - extras/agents/*.md, extras/claude-skills/*.md → AGENTS.md
+#   - .husky/*, .opencode/command/*.md → AGENTS.md
+#
+# Pure doc files (no sync needed - these ARE the docs):
+#   - README.md, AGENTS.md, docs/**, .claude/**, .opencode/skill/**
+
+CHANGED_FILES_CHECK=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || echo "")
+
+if [ -n "$CHANGED_FILES_CHECK" ]; then
+  # Pattern matches source files that trigger doc sync
+  SOURCE_PATTERN='^(backend/app/.*\.py$|frontend/src/|Makefile$|docker-compose\.yml$|scripts/.*\.sh$|\.husky/|extras/agents/.*\.md$|extras/claude-skills/.*\.md$|\.opencode/command/.*\.md$)'
+  
+  if ! echo "$CHANGED_FILES_CHECK" | grep -qE "$SOURCE_PATTERN"; then
+    echo "[post-commit] Skipping doc sync: only documentation files changed (no source files)"
+    exit 0
+  fi
+fi
+
+# ============================================================
 # DOCUMENTATION SYNC
 # ============================================================
 echo ""
