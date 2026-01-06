@@ -2,16 +2,27 @@
 name: plan-interview
 version: 1.0.0
 type: planning
-description: Deep interview process for feature planning and spec generation
+description: |
+  MUST LOAD when user enters PLANNING MODE or PLAN MODE.
+  Triggers: "plan a feature", "spec generation", "project goal", "define requirements",
+  "let's plan", "planning mode", "create a spec", "feature specification".
+  Conducts deep interview → outputs formal spec document to docs/specs/.
 scope:
   - planning
+  - plan mode
+  - planning mode
+  - spec generation
   - requirements
   - specification
+  - project goal
 triggers:
-  - user requests to plan a feature
+  - user says "planning mode" or "plan mode"
+  - user requests spec generation or specification
+  - user asks to plan a feature or project goal
+  - user says "let's plan" or "define requirements"
   - user provides a plan file to review
-  - user asks to clarify requirements
-  - ambiguous feature request with multiple interpretations
+  - ambiguous feature request needing clarification
+  - user asks to create or write a spec
 output: spec file written to docs/specs/ or user-specified location
 ---
 

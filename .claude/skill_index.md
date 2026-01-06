@@ -15,7 +15,7 @@ Primary location for oh-my-opencode skill discovery:
 | `repo-gardening` | `.opencode/skill/repo-gardening/` | Repository hygiene, file organization |
 | `smart-commit` | `.opencode/skill/smart-commit/` | Auto-group changes, atomic commits |
 | `vue-perf-tune` | `.opencode/skill/vue-perf-tune/` | Vue 3 + Vite performance optimization |
-| `plan-interview` | `.opencode/skill/plan-interview/` | **Auto-trigger**: Deep interview for feature planning |
+| `plan-interview` | `.opencode/skill/plan-interview/` | **MUST LOAD** when: "planning mode", "plan mode", "spec generation", "project goal", "let's plan", "create a spec", "define requirements". Conducts deep interview → outputs spec to `docs/specs/` |
 
 ## Legacy Skills (Reference)
 

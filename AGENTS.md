@@ -335,6 +335,16 @@ Invoke specialized agents via slash commands:
 | `/simplify` | Simplifier Agent | **Pre-commit (mandatory)**, reduce complexity |
 | `/doc-sync` | Documentation Agent | **Post-commit (auto)**, sync docs with code changes |
 
+### Auto-Load Skills
+
+Skills are automatically loaded based on user intent. **MUST LOAD** when trigger phrases are detected:
+
+| Skill | Trigger Phrases | Action |
+|-------|-----------------|--------|
+| `plan-interview` | "planning mode", "plan mode", "spec generation", "project goal", "let's plan", "create a spec", "define requirements", "plan a feature" | Load `.opencode/skill/plan-interview/SKILL.md` → conduct deep interview → output spec to `docs/specs/` |
+
+**How to detect**: If user message contains ANY trigger phrase above, load the skill BEFORE responding.
+
 ### Auto-Spawn Rules for Sisyphus/Oracle
 
 Automatically spawn the appropriate agent based on context:
