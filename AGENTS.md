@@ -2,15 +2,7 @@
 
 AI-agent friendly development guide for this Vue 3 + FastAPI project.
 
-> **⚠️ BEFORE RESPONDING TO ANY USER REQUEST:**
->
-> If user asks to **build/create/implement a feature/app** (e.g., "I want to build a notes app", "make me a journal app", "create X using this repo"):
->
-> 1. **FIRST**: Read `.opencode/skill/plan-interview/SKILL.md` using the Read tool
-> 2. **THEN**: Follow the interview protocol in that file
-> 3. **DO NOT** start exploring code or asking ad-hoc questions first
->
-> See [Auto-Load Skills](#auto-load-skills) for full trigger list.
+> **See CLAUDE.md for spec-kit commands** (`/specify`, `/plan`, `/tasks`) that use the `AskUserQuestion` tool for structured requirements gathering.
 
 ## Overview
 
@@ -331,7 +323,7 @@ docs: sync documentation for feat(api): add user authentication
 
 See `extras/constitution/agent_rules.md` for full governance rules.
 
-## Slash Commands (oh-my-opencode)
+## Slash Commands
 
 Invoke specialized agents via slash commands:
 
@@ -345,34 +337,19 @@ Invoke specialized agents via slash commands:
 | `/simplify` | Simplifier Agent | **Pre-commit (mandatory)**, reduce complexity |
 | `/doc-sync` | Documentation Agent | **Post-commit (auto)**, sync docs with code changes |
 
-### Auto-Load Skills
+### Spec-Kit Integration
 
-Skills are automatically loaded based on user intent. **MUST LOAD** when trigger phrases are detected:
+For feature planning, use the spec-kit commands defined in CLAUDE.md:
 
-| Skill | Trigger Phrases | Action |
-|-------|-----------------|--------|
-| `plan-interview` | "planning mode", "plan mode", "spec generation", "project goal", "let's plan", "create a spec", "define requirements", "plan a feature" | Load `.opencode/skill/plan-interview/SKILL.md` → conduct deep interview → output spec to `docs/specs/` |
+| Command | Trigger | Action |
+|---------|---------|--------|
+| `/specify` | "I want to build X", complex features, ambiguous scope | Interview with `AskUserQuestion` → output spec to `docs/specs/` |
+| `/plan` | After spec exists or for implementation planning | Design implementation approach |
+| `/tasks` | After plan exists | Break down into `TodoWrite` items |
 
-**How to detect**: If user message contains ANY trigger phrase above, load the skill BEFORE responding.
+### Auto-Spawn Rules
 
-**CRITICAL - `plan-interview` also triggers on COMPLEX FEATURE REQUESTS:**
-- "I want to build X" / "build me X" / "create X app/feature"
-- "implement X" / "add X feature" / "I need X functionality"  
-- Any request requiring database + backend + frontend work together
-- Any greenfield feature (new project/app using this repo)
-- Any request with ambiguous scope needing clarification
-
-**Example**: "I want to build a notes app using this bootstrap repo" → MUST load plan-interview skill first!
-
-**HOW TO LOAD A SKILL (MANDATORY STEPS):**
-1. **FIRST ACTION**: Use the Read tool to read `.opencode/skill/plan-interview/SKILL.md`
-2. Follow the interview protocol defined in that file EXACTLY
-3. Do NOT start exploring code or asking ad-hoc questions until you've read the skill file
-4. The skill file contains the structured interview phases - use them
-
-### Auto-Spawn Rules for Sisyphus/Oracle
-
-Automatically spawn the appropriate agent based on context:
+Automatically use the appropriate agent based on context:
 
 | Trigger | Spawn |
 |---------|-------|
@@ -386,10 +363,4 @@ Automatically spawn the appropriate agent based on context:
 | **After EVERY code commit** | `/doc-sync` (AUTO via post-commit hook, SYNCHRONOUS) |
 | After completing code changes | `/simplify` then `/review` |
 
-**Spawn via Task tool:**
-```
-Task(subagent_type="general", prompt="/testing <context>")
-Task(subagent_type="oracle", prompt="/review <context>")
-```
-
-Agent specs live in `extras/agents/*.agent.md` and commands in `.opencode/command/`.
+Agent specs live in `extras/agents/*.agent.md` and legacy commands in `.opencode/command/` (kept for reference).
